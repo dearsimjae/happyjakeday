@@ -17,6 +17,7 @@
   flex-wrap: wrap;
   justify-content: center;
 }
+    ----
     /* Default (for desktop) */
 h1 {
   font-size: 48px;
@@ -38,6 +39,19 @@ img {
 .item {
   flex: 1 1 300px; /* 每个最小300px，自动换行 */
 }
+----
+    button {
+  padding: 20px 40px;  /* desktop size */
+  font-size: 20px;
+}
+
+@media (max-width: 600px) {
+  button {
+    padding: 10px 20px;  /* smaller on phone */
+    font-size: 14px;
+  }
+}
+
 
 
         body {
