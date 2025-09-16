@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>进入生日应援 ❄</title>
+  <style>
+    .container {
+  width: 80%;   /* 占屏幕宽度的80% */
+  max-width: 1200px; /* 大屏时最多1200px */
+  font-size: 2vw; /* 根据屏幕宽度调整文字大小 */
+    }
+    .container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.item {
+  flex: 1 1 300px; /* 每个最小300px，自动换行 */
+}
+
+
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #000;
+      overflow: hidden;
+      flex-direction: column;
+    }
+
+    #crystal {
+      cursor: pointer;
+      animation: glow 2s infinite alternate;
+    }
+
+    #crystal img {
+      width: 220px;
+    }
+
+         /* 背景图 */
+    #background {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -1;
+    }
+
+    #text {
+      margin-top: 20px;
+      font-size: 20px;
+      font-family: "Comic Sans MS", cursive;
+      color: #ffffff;
+      text-shadow: 0 0 10px #99ccff;
+    }
+
+    @keyframes glow {
+      from { filter: drop-shadow(0 0 10px #d0efff); }
+      to   { filter: drop-shadow(0 0 25px hsl(210, 91%, 96%)); }
+    }
+    body {
+  background: url("bg-desktop.jpg") no-repeat center center/cover;
+}
+
+@media (max-width: 768px) {
+  body {
+    background: url("bg-mobile.jpg") no-repeat center center/cover;
+  }
+}
+
+/* 手机 */
+@media (max-width: 600px) {
+  body {
+    font-size: 14px;
+  }
+}
+
+/* 平板 */
+@media (min-width: 601px) and (max-width: 1024px) {
+  body {
+    font-size: 16px;
+  }
+}
+
+/* 桌面 */
+@media (min-width: 1025px) {
+  body {
+    font-size: 18px;
+  }
+}
+
+  </style>
+</head>
+<body>
+  <a id="crystal" href="main.html">
+    <img src="assets/crystalball.png" alt="Crystal Ball">
+  </a>
+    <img id="background" src="assets/bg-desktop.jpg" alt="background">
+  <font aria-setsize="91%" div id="text">点击水晶球进入 ❄Click the snowglobe to enter jake's world</div>
+    
+
+</body>
+</html>

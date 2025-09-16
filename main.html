@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Happy Birthday Jaeyun 🎂❄️</title>
+  <style>
+    .container {
+  width: 80%;   /* 占屏幕宽度的80% */
+  max-width: 1200px; /* 大屏时最多1200px */
+  font-size: 2vw; /* 根据屏幕宽度调整文字大小 */
+}
+
+  .container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.item {
+  flex: 1 1 300px; /* 每个最小300px，自动换行 */
+}
+
+
+        body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        height: 100vh;
+        width: 100vw;
+        background: url("assets/background.jpg") no-repeat center center/cover;
+        }
+
+     /* 背景图 */
+    #background {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -1;
+    }
+
+    /* 小男孩 & 信箱 */
+    #boy {
+      position: absolute;
+      bottom: 130px;
+      left: 46%;
+      transform: translateX(-60%) scale(0.6);
+      cursor: pointer;
+      z-index: 5;
+      pointer-events: none;
+    }
+    #mailbox {
+      position: absolute;
+      bottom: 180px;
+      left: 46%;
+      transform: translateX(20%) scale(0.6);
+      cursor: pointer;
+      z-index: 5;
+    }
+
+    /* 祝福雪花（文字 + 背景雪花图）*/
+    .snowflake {
+      position: absolute;
+      top: -120px;
+      left: 0;
+      width: 50px;
+      height: 50px;
+      background: url("assets/snowflake.png") no-repeat center/contain;
+      background-size: contain;
+      display: flex;
+      flex-shrink: 0;   /* 防止因为文字撑大 */
+        overflow: hidden; /* 超出部分隐藏 */
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 20;
+      white-space: nowrap;
+      font-size: 9px;
+      color: #9db1c4;
+      text-shadow: 0 0 8px rgba(250,218,228,0.8);
+      transform-origin: center;
+    }
+
+    /* 小雪花图片装饰 */
+    .miniSnow {
+      position: absolute;
+      top: -40px;
+      width: 50px;
+      height: 50px;
+      pointer-events:none;
+      z-index: 15;
+      opacity: 1;
+      background-size: contain;
+    }
+
+    /* 顶部提示（可删） */
+    #hint {
+      position:absolute;
+      top:12px; left:50%;
+      transform:translateX(-50%);
+      z-index:40;
+      color:#fff;
+      background: rgba(0,0,0,0.25);
+      padding:6px 10px; border-radius:8px; font-size:13px;
+    }
+
+    /* 简单响应式：屏幕窄时缩小雪花 */
+    @media (max-width:420px) {
+      .snowflake { width:86px; height:86px; font-size:11px; }
+    }
+    body {
+  background: url("bg-desktop.jpg") no-repeat center center/cover;
+}
+
+@media (max-width: 768px) {
+  body {
+    background: url("bg-mobile.jpg") no-repeat center center/cover;
+  }
+}
+/* 手机 */
+@media (max-width: 600px) {
+  body {
+    font-size: 14px;
+  }
+}
+
+/* 平板 */
+@media (min-width: 601px) and (max-width: 1024px) {
+  body {
+    font-size: 16px;
+  }
+}
+
+/* 桌面 */
+@media (min-width: 1025px) {
+  body {
+    font-size: 18px;
+  }
+}
+
+  </style>
+</head>
+<body>
+
+  <div id="hint">点信箱写下你的祝福给沈载伦 Click Mailbox To Write Down Your Message To Jake!  ✉️</div>
+
+  <!-- 图片资源（放到 assets/ ） -->
+  <img id="background" src="assets/bg-desktop.jpg" alt="background">
+  <img id="boy" src="assets/boy.png" alt="boy">
+  <img id="mailbox" src="assets/mailbox.png" alt="mailbox">
+
+  <!-- 所有逻辑放在 module 脚本最后（确保 DOM 已就绪） -->
+  <script type="module">
+    // --------- 把下面 firebaseConfig 换成你自己的 ---------
+    const firebaseConfig = {
+  apiKey: "AIzaSyCYWBXPW6ubnowyxn6SAoVIZQzXZ0yKqgk",
+  authDomain: "jaeyun-bday.firebaseapp.com",
+  databaseURL: "https://jaeyun-bday-default-rtdb.firebaseio.com",
+  projectId: "jaeyun-bday",
+  storageBucket: "jaeyun-bday.firebasestorage.app",
+  messagingSenderId: "243627514944",
+  appId: "1:243627514944:web:2603347b229c547d4453a5",
+  measurementId: "G-VWBZMQXH4L"
+}
+    // ---------------------------------------------------------
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+    import {
+      getFirestore, collection, addDoc,
+      query, orderBy, limit, onSnapshot
+    } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+
+    // init firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const wishesCol = collection(db, "wishes");
+
+    // DOM 元素
+    const mailbox = document.getElementById("mailbox");
+
+    // 防重复：记录本客户端刚写入的 docId（onSnapshot 新增时跳过）
+    const recentlyOwn = new Set();
+
+    // 默认祝福（页面打开时仅本地生成，不写入数据库）
+    const defaultWishes = [
+      "生日快乐 🎂",
+      "생일축하해!",
+      "my lucky-yun"
+    ];
+
+    // 创建文字雪花（永远循环下落）
+    function createSnowflake(text) {
+      const el = document.createElement("div");
+      el.className = "snowflake";
+      el.textContent = "❄ " + text + " ❄";
+
+      // 随机字体大小 & 微小旋转
+      const scale = 0.9 + Math.random() * 0.7;
+      el.style.transform = `scale(${scale}) rotate(${(Math.random()-0.5)*10}deg)`;
+
+      // 水平位置（避开画面最右边一点）
+      const maxLeft = Math.max(window.innerWidth - 120, 50);
+      el.style.left = Math.random() * maxLeft + "px";
+      el.style.top = (-30 - Math.random()*300) + "px"; // 从更上方开始
+
+      document.body.appendChild(el);
+
+      // 下落逻辑（requestAnimationFrame）
+      let y = parseFloat(el.style.top);
+      const speed = 0.6 + Math.random() * 1.8;
+
+      function fall() {
+        y += speed;
+        if (y > window.innerHeight + 40) {
+          // 到底后立刻回到顶部并切换随机水平位置
+          y = -40 - Math.random() * 140;
+          el.style.left = Math.random() * maxLeft + "px";
+        }
+        el.style.top = y + "px";
+        requestAnimationFrame(fall);
+      }
+      requestAnimationFrame(fall);
+    }
+
+    // 创建迷你雪花图片装饰（持续循环）
+    function createMiniSnow(size=null, left=null, speed=null) {
+      const img = document.createElement("img");
+      img.src = "assets/snowflake.png"; // 你的小雪花图（透明背景最好）
+      img.className = "miniSnow";
+      const s = size || (12 + Math.random() * 20);
+      img.style.width = s + "px";
+      img.style.height = s + "px";
+      const L = (left !== null) ? left : Math.random() * Math.max(window.innerWidth - s, 10);
+      img.style.left = L + "px";
+      img.style.top = (-10 - Math.random() * 200) + "px";
+      document.body.appendChild(img);
+
+      let y = parseFloat(img.style.top);
+      const spd = speed || (0.3 + Math.random() * 1.3);
+
+      function fall() {
+        y += spd;
+        if (y > window.innerHeight + 20) {
+          y = -20 - Math.random() * 80;
+          img.style.left = Math.random() * Math.max(window.innerWidth - s, 10) + "px";
+        }
+        img.style.top = y + "px";
+        requestAnimationFrame(fall);
+      }
+      requestAnimationFrame(fall);
+    }
+
+    // 点击信箱：弹 prompt（你也可以换成弹窗），并把祝福写入 Firestore
+    async function openWishBox() {
+      const message = prompt("写下你给沈载伦的生日祝福吧 💌");
+      if (!message) return;
+
+      try {
+        // 写入 Firestore
+        const docRef = await addDoc(wishesCol, { message: message.trim(), createdAt: Date.now() });
+        // 记录本客户端刚写入的 id，短时间内 onSnapshot 的 added 将被忽略（避免重复生成）
+        recentlyOwn.add(docRef.id);
+        setTimeout(() => recentlyOwn.delete(docRef.id), 4000);
+
+        // 本地立即生成视觉反馈（数据库监听也会触发，但会被上面去重挡掉）
+        createSnowflake(message.trim());
+      } catch (err) {
+        console.error("保存祝福失败：", err);
+        alert("提交失败，请稍后再试。");
+      }
+    }
+
+    // 绑定点击
+    mailbox.addEventListener("click", openWishBox);
+
+    // 实时监听数据库（取最近 500 条，按时间升序）
+    const q = query(wishesCol, orderBy("createdAt", "asc"), limit(500));
+    onSnapshot(q, (snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === "added") {
+          const id = change.doc.id;
+          const data = change.doc.data();
+          // 如果是刚刚自己写入的（recentlyOwn），跳过（避免双重）
+          if (recentlyOwn.has(id)) {
+            recentlyOwn.delete(id);
+            return;
+          }
+          if (data && data.message) {
+            createSnowflake(data.message);
+          }
+        }
+      });
+    });
+
+    // 页面加载：生成若干迷你雪花 & 默认祝福（仅前端展示）
+    window.addEventListener("load", () => {
+      for (let i = 0; i < 25; i++) createMiniSnow();
+      // 页面打开时给点默认祝福（只是视觉，不存数据库）
+      defaultWishes.forEach((w, i) => setTimeout(()=> createSnowflake(w), 300 + i*450));
+    });
+
+    // 兼容：窗口大小变更时（可选）——这里不销毁已有雪花，仅保证后续位置合理
+    window.addEventListener("resize", () => {
+      // noop for now
+    });
+
+  </script>
+</body>
+</html>
