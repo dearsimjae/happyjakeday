@@ -17,7 +17,25 @@
   justify-content: center;
 }
 .item {
-  flex: 1 1 300px; /* 每个最小300px，自动换行 */
+  flex: 1 1 200px; /* 每个最小300px，自动换行 */
+}
+    
+/* Default (for desktop) */
+h1 {
+  font-size: 48px;
+}
+img {
+  width: 400px;
+}
+
+/* For phones (screen width 600px or smaller) */
+@media (max-width: 600px) {
+  h1 {
+    font-size: 24px;   /* shrink text */
+  }
+  img {
+    width: 200px;      /* shrink image */
+  }
 }
 
 
