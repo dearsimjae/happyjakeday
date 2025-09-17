@@ -35,6 +35,12 @@
     #crystal {
       cursor: pointer;
       animation: glow 2s infinite alternate;
+      transition: opacity 1s ease-out;
+    }
+
+    /* fade-out effect */
+    .fade-out {
+      opacity: 0;
     }
 
     #crystal img {
@@ -101,7 +107,19 @@
   </a>
     <img id="background" src="assets/bg-desktop.jpg" alt="background">
   <font aria-setsize="70%" div id="text">点击水晶球进入 ❄Click the snowglobe to enter jake's world</div>
-    
 
+    <script>
+    const ball = document.getElementById("crystal-ball");
+
+    ball.addEventListener("click", () => {
+      // add fade-out effect
+      ball.classList.add("fade-out");
+
+      // wait for transition (1s) then go to next page
+      setTimeout(() => {
+        window.location.href = "secondpage.html"; // change to your real page
+      }, 1000); // same as CSS transition time
+    });
+  </script>
 </body>
 </html>
